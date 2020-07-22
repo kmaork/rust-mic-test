@@ -1,9 +1,12 @@
-use plotters::prelude::{WHITE, ChartBuilder, IntoDrawingArea, IntoFont, Histogram, RED, Color, draw_piston_window};
+use plotters::prelude::{WHITE, ChartBuilder, IntoDrawingArea, IntoFont, Histogram, RED, Color, draw_piston_window, LineSeries};
 use piston_window::{EventLoop, PistonWindow, WindowSettings};
+use rand::Rng;
 
-const FPS: u32 = 10;
+const FPS: u32 = 1;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let mut rng = rand::thread_rng();
+
     let mut window: PistonWindow = WindowSettings::new("Peetch", [450, 300])
         .samples(4)
         .build()
@@ -30,14 +33,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .axis_desc_style(("sans-serif", 15).into_font())
             .draw()?;
 
-        let data = [
-            0u32, 1, 1, 1, 4, 2, 5, 7, 8, 6, 4, 2, 1, 8, 3, 3, 3, 4, 4, 3, 3, 3,
-        ];
-
         chart.draw_series(
-            Histogram::vertical(&chart)
-                .style(RED.mix(0.5).filled())
-                .data(data.iter().map(|x: &u32| (*x, 1))),
+            LineSeries::new(vec!((1, 1), (3, 1), (6, rng.gen_range(0, 10))), &RED)
         )?;
         Ok(())
     }) {}
