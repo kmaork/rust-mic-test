@@ -358,9 +358,9 @@ dependencies = [
 
 [[package]]
 name = "cpal"
-version = "0.12.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ba08f6cef6ecc4058a6c458b6b692ded275b5e80f67230387237ba3e187d593"
+checksum = "be4410231e181e24e3e4612dfca601601e40942003e6a52a12d9d80f19fd9737"
 dependencies = [
  "alsa",
  "core-foundation-sys 0.6.2",

@@ -1,9 +1,11 @@
 // https://github.com/RustAudio/cpal/blob/master/examples/record_wav.rs
 // https://docs.rs/plotters/0.2.15/plotters/
-use plotters::prelude::{BLACK, ChartBuilder, IntoDrawingArea, IntoFont, Color, draw_piston_window, LineSeries, WHITE, GREEN};
-use piston_window::{EventLoop, PistonWindow, WindowSettings};
-use cpal::traits::{HostTrait, DeviceTrait, StreamTrait};
 use std::sync::mpsc::sync_channel;
+use piston_window::{EventLoop, PistonWindow, WindowSettings};
+use plotters::prelude::{BLACK, ChartBuilder, IntoDrawingArea, IntoFont, Color, draw_piston_window, LineSeries, WHITE, GREEN};
+use cpal::traits::{HostTrait, DeviceTrait, StreamTrait};
+
+mod rolling;
 
 const FPS: u32 = 30;
 
@@ -38,20 +40,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let host = cpal::default_host();
     let device = host.default_input_device().expect("no input device available");
     println!("Microphone: {}", device.name()?);
+    // println!("Supported: {:?}", device.supported_input_configs().unwrap().collect::<Vec<_>>());
     let config = device
         .default_input_config()
         .expect("Failed to get default input config");
-    println!("Supported: {:?}", device.supported_input_configs().unwrap().collect::<Vec<_>>());
     println!("Default input config: {:?}", config);
 
     let err_fn = move |err| {
         eprintln!("an error occurred on stream: {}", err);
     };
-
-    let mut window: PistonWindow = WindowSettings::new("Peetch", [450, 300])
-        .samples(4)
-        .build()
-        .expect("Couldn't build window");
 
     let (sender, receiver) = sync_channel(10);
     let stream = device.build_input_stream(
@@ -59,13 +56,29 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         move |data: &[i16], _: &_| { sender.try_send(data.to_vec()).ok(); },
         err_fn,
     )?;
+
+    let mut window: PistonWindow = WindowSettings::new("Peetch", [450, 300])
+        .samples(4)
+        .build()
+        .expect("Couldn't build window");
+
     stream.play()?;
     window.set_max_fps(FPS as u64);
-    while draw(&mut window, &receiver.recv().expect("Recorder thread disconnected")) {}
+    let mut roller = rolling::RollingData::new_default(5000);
+    while draw(&mut window, roller.data()) {
+        for chunk in receiver.try_iter() {
+            roller.roll(&chunk);
+        }
+    }
     drop(stream);
     Ok(())
 }
 
+/*
+We don't necessarily know the input buffer size, but we don't need to.
+Let's decide on a size that is nice for displaying, and roll new data into it.
+The window always displays the current buffer.
+ */
 // TODO: why is text not displayed?
 // TODO: make faster. Sample rate? ASIO? FPS?
 // TODO: if sample_format F32 is supported, how are we using i16?

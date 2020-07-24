@@ -10,4 +10,4 @@ edition = "2018"
 plotters = {version = "0.2.15", features = ["piston"]}
 piston_window = {}
 rand = "0.7.3"
-cpal = "0.12.0"
+cpal = "0.12.1"
