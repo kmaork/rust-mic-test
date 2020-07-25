@@ -4,10 +4,6 @@ pub struct Roller<T> {
 }
 
 impl<T: Copy + Clone + Default> Roller<T> {
-    pub fn new_default(size: usize) -> Self {
-        Self::new(size, T::default())
-    }
-
     pub fn new(size: usize, fill: T) -> Self {
         Self { data: vec![fill; size] }
     }

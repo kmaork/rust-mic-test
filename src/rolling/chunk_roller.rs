@@ -4,14 +4,10 @@ use std::cmp::min;
 #[derive(Debug)]
 pub struct ChunkRoller<T> {
     buffer: Vec<T>,
-    roller: Roller<T>
+    roller: Roller<T>,
 }
 
 impl<T: Copy + Clone + Default> ChunkRoller<T> {
-    pub fn new_default(size: usize) -> Self {
-        Self::new(size, T::default())
-    }
-
     pub fn new(size: usize, fill: T) -> Self {
         Self { buffer: Vec::new(), roller: Roller::new(size, fill) }
     }
@@ -24,13 +20,15 @@ impl<T: Copy + Clone + Default> ChunkRoller<T> {
         self.buffer.extend_from_slice(data);
     }
 
-    pub fn roll(&mut self, mut max_chunk_size: usize) -> usize {
-        max_chunk_size = min(max_chunk_size, self.buffer.len());
-        let (chunk, rest) = self.buffer.split_at(max_chunk_size);
-        self.roller.roll(chunk);
-        let rolled_len = chunk.len();
-        self.buffer.splice(.., rest.to_vec());
-        rolled_len
+    pub fn roll(&mut self, mut max_chunk_size: usize) {
+        let remaining_vec;
+        {
+            max_chunk_size = min(max_chunk_size, self.buffer.len());
+            let (chunk, remaining) = self.buffer.split_at(max_chunk_size);
+            self.roller.roll(chunk);
+            remaining_vec = remaining.to_vec();
+        }
+        self.buffer.splice(.., remaining_vec);
     }
 }
 

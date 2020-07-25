@@ -2,7 +2,7 @@
 // https://docs.rs/plotters/0.2.15/plotters/
 use std::sync::mpsc::sync_channel;
 use piston_window::{EventLoop, PistonWindow, WindowSettings};
-use plotters::prelude::{BLACK, ChartBuilder, IntoDrawingArea, IntoFont, Color, draw_piston_window, LineSeries, WHITE, GREEN};
+use plotters::prelude::{BLACK, ChartBuilder, IntoDrawingArea, IntoFont, draw_piston_window, LineSeries, WHITE, GREEN};
 use cpal::traits::{HostTrait, DeviceTrait, StreamTrait};
 
 mod rolling;
