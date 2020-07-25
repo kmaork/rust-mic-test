@@ -9,15 +9,15 @@ mod rolling;
 
 const FPS: u32 = 30;
 
-fn draw(mut window: &mut PistonWindow, points: &[i16], caption: &str) -> bool {
+fn draw(mut window: &mut PistonWindow, points: &[f32], caption: &str) -> bool {
     draw_piston_window(&mut window, |b| {
         let root = b.into_drawing_area();
         root.fill(&BLACK)?;
         let mut chart = ChartBuilder::on(&root)
             .caption(caption, ("sans-serif", 30.0).into_font().color(&WHITE))
-            .build_ranged(0..((points.len() + 2) as i32), ((i16::MIN as f32 * 0.8) as i32)..((i16::MAX as f32 * 0.8) as i32))?;
+            .build_ranged(0..((points.len() + 2) as i32), -1f32..1f32)?;
 
-        let data = (0..points.len()).map(|i| (i as i32, points[i] as i32));
+        let data = (0..points.len()).map(|i| (i as i32, points[i]));
         chart.draw_series(LineSeries::new(data, &GREEN))?;
         Ok(())
     }).is_some()
@@ -38,7 +38,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (sender, receiver) = sync_channel(100);
     let stream = device.build_input_stream(
         &config.into(),
-        move |data: &[i16], _: &_| { sender.try_send(data.to_vec()).ok(); },
+        move |data: &[f32], _: &_| { sender.try_send(data.to_vec()).ok(); },
         err_fn,
     )?;
 
@@ -65,5 +65,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 // TODO: wasm? will the latency be better?
 // TODO: why is text not displayed?
 // TODO: make faster. Sample rate? ASIO? FPS?
-// TODO: if sample_format F32 is supported, how are we using i16?
+// TODO: if sample_format F32 is supported, how are we using f32?
 // TODO: what are channels?
