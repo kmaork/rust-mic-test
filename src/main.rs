@@ -1,5 +1,3 @@
-// https://github.com/RustAudio/cpal/blob/master/examples/record_wav.rs
-// https://docs.rs/plotters/0.2.15/plotters/
 use std::sync::mpsc::sync_channel;
 use piston_window::{EventLoop, PistonWindow, WindowSettings};
 use plotters::prelude::{BLACK, ChartBuilder, IntoDrawingArea, IntoFont, draw_piston_window, LineSeries, WHITE, GREEN};
@@ -42,7 +40,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         err_fn,
     )?;
 
-    let mut window: PistonWindow = WindowSettings::new("Peetch", [600, 400])
+    let mut window: PistonWindow = WindowSettings::new("rust-mic-test", [600, 400])
         .samples(4)
         .build()
         .expect("Couldn't build window");
@@ -62,8 +60,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-// TODO: wasm? will the latency be better?
-// TODO: why is text not displayed?
 // TODO: make faster. Sample rate? ASIO? FPS?
-// TODO: if sample_format F32 is supported, how are we using f32?
 // TODO: what are channels?
