@@ -5,12 +5,10 @@ use rust_mic_test::{draw_mic_input_on_plotters_backend, MicTest};
 use std::error::Error;
 use plotters::prelude::draw_piston_window;
 
-
 const FPS: u32 = 30;
 
-
-fn draw_window(mut window: &mut PistonWindow, points: &[f32], caption: &str) -> bool {
-    draw_piston_window(&mut window, |backend| draw_mic_input_on_plotters_backend(backend, points, caption)).is_some()
+fn draw_window(window: &mut PistonWindow, points: &[f32], caption: &str) -> bool {
+    draw_piston_window(window, |backend| draw_mic_input_on_plotters_backend(backend, points, caption)).is_some()
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
