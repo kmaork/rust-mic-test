@@ -1,24 +1,17 @@
+#![feature(associated_type_bounds)]
 use std::sync::mpsc::sync_channel;
 use piston_window::{EventLoop, PistonWindow, WindowSettings};
-use plotters::prelude::{BLACK, ChartBuilder, IntoDrawingArea, IntoFont, draw_piston_window, LineSeries, WHITE, GREEN};
 use cpal::traits::{HostTrait, DeviceTrait, StreamTrait};
+use plotters::prelude::*;
+use rust_mic_test::draw;
 
 mod rolling;
 
 const FPS: u32 = 30;
 
-fn draw(mut window: &mut PistonWindow, points: &[f32], caption: &str) -> bool {
-    draw_piston_window(&mut window, |b| {
-        let root = b.into_drawing_area();
-        root.fill(&BLACK)?;
-        let mut chart = ChartBuilder::on(&root)
-            .caption(caption, ("sans-serif", 30.0).into_font().color(&WHITE))
-            .build_ranged(0..((points.len() + 2) as i32), -1f32..1f32)?;
 
-        let data = (0..points.len()).map(|i| (i as i32, points[i]));
-        chart.draw_series(LineSeries::new(data, &GREEN))?;
-        Ok(())
-    }).is_some()
+fn draw_window(mut window: &mut PistonWindow, points: &[f32], caption: &str) -> bool {
+    draw_piston_window(&mut window, |backend| draw(backend, points, caption)).is_some()
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -50,7 +43,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     window.set_lazy(false);
     window.set_bench_mode(true);
     let mut roller = rolling::SmoothChunkRoller::new_default(1500);
-    while draw(&mut window, roller.data(), &device.name()?) {
+    while draw_window(&mut window, roller.data(), &device.name()?) {
         for chunk in receiver.try_iter() {
             roller.enqueue(&chunk);
         }
